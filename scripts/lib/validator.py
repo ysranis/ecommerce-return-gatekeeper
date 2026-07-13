@@ -1,0 +1,28 @@
+import json
+
+REQUIRED_KEYS: list[str] = [
+    "chain_of_thought",
+    "intent_action",
+    "extracted_slots",
+    "policy_evaluation",
+    "gatekeeper_status",
+    "confidence_score",
+    "fallback_escalation",
+    "user_facing_response",
+]
+
+
+def validate(response_str: str) -> tuple[bool, dict | None]:
+    """Parse response_str as JSON and check all REQUIRED_KEYS are present.
+
+    Returns:
+        (True, parsed_dict)  if valid
+        (False, None)        if invalid JSON or missing required keys
+    """
+    try:
+        data = json.loads(response_str)
+    except (json.JSONDecodeError, ValueError):
+        return False, None
+    if not all(k in data for k in REQUIRED_KEYS):
+        return False, None
+    return True, data
