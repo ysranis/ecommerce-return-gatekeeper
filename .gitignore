@@ -1,0 +1,58 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# ML / Training outputs (large files — use HF Hub for model weights)
+output/
+*.bin
+*.safetensors
+*.gguf
+*.pt
+*.pth
+
+# Node / Next.js
+node_modules/
+.next/
+.vercel/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secrets / API keys
+*.key
+secrets.json
+credentials.json
+
+# W&B
+wandb/
+
+# Data (large files — track with Git LFS or HF Datasets)
+data/*.jsonl
+data/*.csv
+data/*.parquet
