@@ -10,8 +10,10 @@ def _valid_row() -> dict:
         "intent_action": "get_refund",
         "extracted_slots": {"order_id": "AX-1234", "invoice_id": None,
                             "return_window_days": 15, "item_condition": None},
+        "policy_evaluation": {"within_return_window": True, "item_opened": False, "evidence_required": False},
         "gatekeeper_status": "APPROVE_AUTOMATED",
         "confidence_score": 0.95,
+        "fallback_escalation": False,
         "user_facing_response": "Your refund has been approved.",
     }
 
@@ -49,8 +51,8 @@ def test_validate_returns_false_when_multiple_keys_missing():
     assert parsed is None
 
 
-def test_required_keys_contains_six_entries():
-    assert len(REQUIRED_KEYS) == 6
+def test_required_keys_contains_eight_entries():
+    assert len(REQUIRED_KEYS) == 8
 
 
 def test_validate_preserves_extra_keys():

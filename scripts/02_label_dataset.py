@@ -84,7 +84,7 @@ async def label_one(
             # Invalid JSON or missing keys — retry with strict prompt
         except Exception as e:
             print(f"[WARN] {seed['seed_id']} attempt {attempt} API error: {e}")
-            return None  # Don't retry on API errors
+            continue  # Retry on API errors with strict prompt
 
     print(f"[DISCARD] {seed['seed_id']} — failed validation after 3 attempts")
     return None

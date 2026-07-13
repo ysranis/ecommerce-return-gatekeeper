@@ -4,8 +4,10 @@ REQUIRED_KEYS: list[str] = [
     "chain_of_thought",
     "intent_action",
     "extracted_slots",
+    "policy_evaluation",
     "gatekeeper_status",
     "confidence_score",
+    "fallback_escalation",
     "user_facing_response",
 ]
 
