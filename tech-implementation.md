@@ -1,6 +1,7 @@
 # Technical Implementation Guide
 **Project:** E-commerce Return Gatekeeper
 **Last updated:** 2026-07-13
+**Week 1 status:** ✅ Complete — PR #1 open, branch `feature/week1-dataset-engineering`
 
 This file is the single source of truth for every technical decision made in this project. It is updated after each step and each file is completed. Written so both non-technical readers and developers can follow along.
 
@@ -19,7 +20,7 @@ This file is the single source of truth for every technical decision made in thi
 We are building an AI system that automatically handles customer return and refund disputes for an e-commerce store. Instead of a human reading every complaint, the AI reads the message, decides what to do (approve the refund, ask for more evidence, or escalate to a human), and responds — in milliseconds.
 
 The project is split into 4 weeks:
-- **Week 1** — Build the training data (teach the AI what good answers look like)
+- **Week 1** — Build the training data (teach the AI what good answers look like) ✅ Complete
 - **Week 2** — Train two AI models on that data
 - **Week 3** — Test and compare all models rigorously
 - **Week 4** — Build a web dashboard to show the results
@@ -60,20 +61,38 @@ DEEPSEEK_API_KEY=your_key_here
 HF_TOKEN=your_huggingface_token_here
 ```
 
+**Python virtual environment** — A `venv/` exists at the project root. Activate it or run via:
+```bash
+venv/bin/pytest -v          # run tests
+venv/bin/python scripts/01_generate_dataset.py
+```
+
 **Python dependencies** — Install with:
 ```bash
-pip install datasets openai python-dotenv aiofiles
+pip install -r requirements.txt
 ```
+Packages: `datasets`, `openai`, `python-dotenv`, `pytest`, `pytest-asyncio`
 
 ---
 
-## Week 1 — Dataset Engineering
+## Week 1 — Dataset Engineering ✅ Complete
+
+**Status:** Code complete. PR #1 open at https://github.com/ysranis/ecommerce-return-gatekeeper/pull/1
+**Next action:** Merge PR #1, then run the two scripts with real API keys to generate the data (~$2.75, ~60 min).
 
 **Goal:** Create a high-quality set of training examples that teaches the AI what good dispute decisions look like.
 
 **Why this matters:** AI models learn by example. Before we can train our models (Week 2), we need at least 1,500 perfectly-answered examples. This week is all about generating and validating those examples.
 
 **Cost:** ~$2.75 in DeepSeek API fees. Runs entirely on your local Mac — no GPU or cloud instance needed.
+
+**Tests:** 35/35 passing (`venv/bin/pytest -v`)
+
+**How to run (once PR is merged and .env is set up):**
+```bash
+python scripts/01_generate_dataset.py   # ~30–60 min, ~$0.90
+python scripts/02_label_dataset.py      # ~30–60 min, ~$1.85
+```
 
 ---
 
@@ -164,6 +183,16 @@ These are building blocks used by both scripts. Think of them as reusable tools 
 
 **Why one place?** So that changing a prompt only requires editing one file, not hunting through multiple scripts.
 
+#### `lib/bitext.py`
+**What it does:** Filters and samples the Bitext dataset.
+- `filter_bitext(rows, target_intents)` — keeps only rows matching the 5 target intents
+- `sample_balanced(rows, target_intents, per_intent=400, seed=42)` — samples up to 400 rows per intent reproducibly
+
+#### `lib/splitter.py`
+**What it does:** Splits the validated dataset and enforces the quality gate.
+- `split_dataset(rows, seed=42)` — shuffles and splits into train/val/test (1200/150/150)
+- `check_quality_gate(rows, min_rows=1500)` — stops the pipeline if fewer than 1,500 valid rows exist
+
 #### `lib/checkpoint.py`
 **What it does:** Handles saving and loading progress mid-run.
 - `load_checkpoint(path)` — reads what's already been done; returns empty list if nothing yet
@@ -175,8 +204,8 @@ These are building blocks used by both scripts. Think of them as reusable tools 
 - Checks all required fields are present
 - Returns a simple `True/False` result
 
-**Required fields for a valid golden row:**
-`chain_of_thought`, `intent_action`, `extracted_slots`, `gatekeeper_status`, `confidence_score`, `user_facing_response`
+**Required fields for a valid golden row (8 fields):**
+`chain_of_thought`, `intent_action`, `extracted_slots`, `policy_evaluation`, `gatekeeper_status`, `confidence_score`, `fallback_escalation`, `user_facing_response`
 
 ---
 

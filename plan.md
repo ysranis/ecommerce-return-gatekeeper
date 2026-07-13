@@ -847,11 +847,14 @@ vercel --prod ./dashboard
 
 ## Deliverables Checklist
 
-### Week 1
-- [ ] `data/bitext_seeds.jsonl` — 2,000 filtered seed rows
-- [ ] `data/distilled_dataset.jsonl` — ≥1,500 validated golden rows
-- [ ] `data/train.jsonl` (1,200 rows), `data/val.jsonl` (150 rows), `data/test.jsonl` (150 rows, held out)
-- [ ] **Quality Gate 1 passed:** ≥1,500 validated rows confirmed
+### Week 1 — ✅ Code complete (PR #1 open: `feature/week1-dataset-engineering`)
+
+> Scripts built, 35/35 tests passing. Data files will be generated once scripts are run with real API keys (~$2.75, ~60 min).
+
+- [ ] `data/bitext_seeds.jsonl` — 2,000 filtered seed rows *(pending: run `scripts/01_generate_dataset.py`)*
+- [ ] `data/distilled_dataset.jsonl` — ≥1,500 validated golden rows *(pending: run `scripts/02_label_dataset.py`)*
+- [ ] `data/train.jsonl` (1,200 rows), `data/val.jsonl` (150 rows), `data/test.jsonl` (150 rows, held out) *(pending: run script 02)*
+- [ ] **Quality Gate 1 passed:** ≥1,500 validated rows confirmed *(pending: run script 02)*
 
 ### Week 2
 - [ ] `results/baseline_results_qwen.json` — zero-shot Qwen baseline (150 rows)
