@@ -36,9 +36,9 @@ export default async function HomePage() {
         </div>
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
           <div className="text-3xl font-bold text-purple-400">
-            {ftLlama ? `−${((( ftLlama.hallucination_rate_mean - (summaries.find(s=>s.slug==="base_llama")?.hallucination_rate_mean ?? 0)) * 100) * -1).toFixed(1)}pp` : "—"}
+            {ftLlama ? `+${(ftLlama.judge_score_mean - (summaries.find(s => s.slug === "base_llama")?.judge_score_mean ?? 0)).toFixed(2)}` : "—"}
           </div>
-          <div className="text-sm text-gray-400 mt-1">Hallucination reduction — Llama (B)</div>
+          <div className="text-sm text-gray-400 mt-1">LLM Judge gain — Llama (B)</div>
         </div>
       </div>
 

@@ -1,13 +1,6 @@
 "use client";
 import type { EvalRow } from "@/lib/db";
-
-const MODEL_LABELS: Record<string, string> = {
-  base_qwen: "Base Qwen",
-  ft_qwen: "FT Qwen (A)",
-  base_llama: "Base Llama",
-  ft_llama: "FT Llama (B)",
-  teacher_deepseek: "DeepSeek-V3",
-};
+import { MODEL_LABELS } from "@/lib/constants";
 
 function Badge({ ok, label }: { ok: boolean | null; label: string }) {
   if (ok === null) return <span className="text-gray-500">{label}</span>;

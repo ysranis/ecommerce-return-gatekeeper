@@ -11,14 +11,7 @@ import {
   ErrorBar,
 } from "recharts";
 import type { ModelSummary } from "@/lib/db";
-
-const MODEL_LABELS: Record<string, string> = {
-  base_qwen: "Base Qwen",
-  ft_qwen: "FT Qwen (A)",
-  base_llama: "Base Llama",
-  ft_llama: "FT Llama (B)",
-  teacher_deepseek: "DeepSeek-V3",
-};
+import { MODEL_LABELS } from "@/lib/constants";
 
 const METRIC_COLORS: Record<string, string> = {
   json_validity: "#60a5fa",
