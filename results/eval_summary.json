@@ -1,0 +1,182 @@
+{
+  "generated_at": "2026-07-14T15:01:32.390786+00:00",
+  "n_test_rows": 150,
+  "n_resamples": 1000,
+  "models": {
+    "base_qwen": {
+      "label": "Qwen-2.5-7B (base)",
+      "metrics": {
+        "json_validity_rate": {
+          "mean": 0.9933,
+          "ci_lower": 0.98,
+          "ci_upper": 1.0
+        },
+        "intent_accuracy": {
+          "mean": 0.6133,
+          "ci_lower": 0.5333,
+          "ci_upper": 0.6867
+        },
+        "gatekeeper_accuracy": {
+          "mean": 0.3333,
+          "ci_lower": 0.26,
+          "ci_upper": 0.4067
+        },
+        "slot_f1": {
+          "mean": 0.9178,
+          "ci_lower": 0.8789,
+          "ci_upper": 0.9533
+        },
+        "hallucination_rate": {
+          "mean": 0.02,
+          "ci_lower": 0.0,
+          "ci_upper": 0.0467
+        }
+      },
+      "judge_score": {
+        "mean": 3.08,
+        "ci_lower": 2.92,
+        "ci_upper": 3.24
+      }
+    },
+    "ft_qwen": {
+      "label": "Qwen-2.5-7B fine-tuned (Track A)",
+      "metrics": {
+        "json_validity_rate": {
+          "mean": 0.9667,
+          "ci_lower": 0.9333,
+          "ci_upper": 0.9933
+        },
+        "intent_accuracy": {
+          "mean": 0.86,
+          "ci_lower": 0.8067,
+          "ci_upper": 0.9133
+        },
+        "gatekeeper_accuracy": {
+          "mean": 0.62,
+          "ci_lower": 0.54,
+          "ci_upper": 0.6933
+        },
+        "slot_f1": {
+          "mean": 0.92,
+          "ci_lower": 0.8811,
+          "ci_upper": 0.9556
+        },
+        "hallucination_rate": {
+          "mean": 0.0267,
+          "ci_lower": 0.0067,
+          "ci_upper": 0.0533
+        }
+      },
+      "judge_score": {
+        "mean": 3.94,
+        "ci_lower": 3.7467,
+        "ci_upper": 4.1333
+      }
+    },
+    "base_llama": {
+      "label": "Llama-3.2-3B (base)",
+      "metrics": {
+        "json_validity_rate": {
+          "mean": 0.9467,
+          "ci_lower": 0.9067,
+          "ci_upper": 0.98
+        },
+        "intent_accuracy": {
+          "mean": 0.24,
+          "ci_lower": 0.1733,
+          "ci_upper": 0.3067
+        },
+        "gatekeeper_accuracy": {
+          "mean": 0.26,
+          "ci_lower": 0.1933,
+          "ci_upper": 0.3333
+        },
+        "slot_f1": {
+          "mean": 0.8633,
+          "ci_lower": 0.8122,
+          "ci_upper": 0.9089
+        },
+        "hallucination_rate": {
+          "mean": 0.0467,
+          "ci_lower": 0.02,
+          "ci_upper": 0.08
+        }
+      },
+      "judge_score": {
+        "mean": 2.3933,
+        "ci_lower": 2.2133,
+        "ci_upper": 2.5667
+      }
+    },
+    "ft_llama": {
+      "label": "Llama-3.2-3B fine-tuned (Track B)",
+      "metrics": {
+        "json_validity_rate": {
+          "mean": 0.98,
+          "ci_lower": 0.9533,
+          "ci_upper": 1.0
+        },
+        "intent_accuracy": {
+          "mean": 0.74,
+          "ci_lower": 0.6733,
+          "ci_upper": 0.8067
+        },
+        "gatekeeper_accuracy": {
+          "mean": 0.58,
+          "ci_lower": 0.5,
+          "ci_upper": 0.66
+        },
+        "slot_f1": {
+          "mean": 0.9156,
+          "ci_lower": 0.8778,
+          "ci_upper": 0.9522
+        },
+        "hallucination_rate": {
+          "mean": 0.0067,
+          "ci_lower": 0.0,
+          "ci_upper": 0.02
+        }
+      },
+      "judge_score": {
+        "mean": 3.6933,
+        "ci_lower": 3.4933,
+        "ci_upper": 3.8933
+      }
+    },
+    "teacher_deepseek": {
+      "label": "DeepSeek-V3 (teacher)",
+      "metrics": {
+        "json_validity_rate": {
+          "mean": 0.8933,
+          "ci_lower": 0.8467,
+          "ci_upper": 0.94
+        },
+        "intent_accuracy": {
+          "mean": 0.8133,
+          "ci_lower": 0.7533,
+          "ci_upper": 0.8733
+        },
+        "gatekeeper_accuracy": {
+          "mean": 0.7333,
+          "ci_lower": 0.6533,
+          "ci_upper": 0.8
+        },
+        "slot_f1": {
+          "mean": 0.8578,
+          "ci_lower": 0.8011,
+          "ci_upper": 0.9078
+        },
+        "hallucination_rate": {
+          "mean": 0.02,
+          "ci_lower": 0.0,
+          "ci_upper": 0.0467
+        }
+      },
+      "judge_score": {
+        "mean": 4.0733,
+        "ci_lower": 3.8267,
+        "ci_upper": 4.3
+      }
+    }
+  }
+}

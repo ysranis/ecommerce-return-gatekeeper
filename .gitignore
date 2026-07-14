@@ -56,3 +56,6 @@ wandb/
 data/*.jsonl
 data/*.csv
 data/*.parquet
+
+# Intermediate checkpoint files (never commit)
+*_checkpoint.jsonl
