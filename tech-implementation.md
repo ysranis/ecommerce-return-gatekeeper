@@ -383,3 +383,40 @@ DeepSeek-V3 (`deepseek-chat`) scores each of 750 outputs (5 × 150) on a 1–5 r
 | `results/eval_results.json` | Unified 5-model × 150-row data + judge scores |
 | `results/eval_summary.json` | Aggregated metrics + bootstrap 95% CIs |
 | `results/cross_comparison_table.md` | Portfolio money table (Δ vs base, teacher gap) |
+
+---
+
+## Week 4 — Dashboard + Portfolio Packaging ✅ Complete
+
+**Status:** Dashboard built. Seed Vercel Postgres, then deploy with `vercel --prod ./dashboard`.
+
+**Goal:** Build a Next.js 14 analytics dashboard that visualises all 5 benchmark models,
+exposes an interactive row inspector, cost calculator, and triage router demo.
+
+**Pages:**
+| Route | What it shows |
+|---|---|
+| `/` | KPI Summary — grouped bar chart (5 metrics × 5 models) + LLM judge scores |
+| `/rows` | Row Inspector — list of 150 test seed_ids |
+| `/rows/[id]` | Row detail — 5 model outputs side-by-side with ground truth |
+| `/cost` | Cost Calculator — slider (volume) → monthly cost table + ΔROI vs GPT-4o |
+| `/router` | Triage Router Demo — type a message → instant routing decision |
+
+**How to run:**
+```bash
+# 1. Seed Vercel Postgres (one-time, needs DATABASE_URL in .env)
+pip install psycopg2-binary
+python scripts/08_seed_db.py
+
+# 2. Local dev
+cd dashboard && npm install && npm run dev
+
+# 3. Deploy
+vercel --prod ./dashboard
+```
+
+**Note on HF Hub:** Fine-tuned adapter weights were not uploaded (RunPod pod was terminated before upload). Re-run `scripts/05_train_qwen.py` and `scripts/06_train_llama.py` on a new A10G instance, then:
+```bash
+huggingface-cli upload <username>/qwen-2.5-7b-ecommerce-gk ./output/qwen-2.5-7b-ecommerce-gk
+huggingface-cli upload <username>/llama-3.2-3b-ecommerce-gk ./output/llama-3.2-3b-ecommerce-gk
+```
