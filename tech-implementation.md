@@ -227,4 +227,114 @@ Full detailed spec: [`docs/superpowers/specs/2026-07-13-week1-dataset-engineerin
 
 ---
 
-*Weeks 2, 3, and 4 will be documented here as each is completed.*
+---
+
+## Week 2 — Baseline Evaluation + Fine-Tuning (In Progress)
+
+**Goal:** Establish zero-shot baselines for both models, fine-tune them, then produce a clear "before vs. after" comparison report.
+
+**Runs on:** RunPod A10G GPU instance (~$0.44/hr) — scripts 03 and 05/06 require a GPU. Script 04 runs locally on Mac.
+
+---
+
+### Step 1 — Zero-Shot Baseline + Fine-tuned Evaluation
+
+#### `scripts/03_baseline_eval.py`
+
+**What this script does (plain English):**
+
+Before we train anything, we need to know how bad the untrained models are. We run all 150 held-out test rows through the raw, untouched Qwen-7B and Llama-3B models and ask them to produce the same structured JSON output we'll train them to produce. Most of the time they'll fail — wrong format, missing fields, hallucinated order IDs. That's expected. We record every failure. This is our "before" photo.
+
+After fine-tuning (scripts 05 and 06), we run the same script again with the `--adapter-path` flag. This gives us the "after" photo with an identical output schema, enabling direct comparison.
+
+**Metrics captured per model run:**
+
+| Metric | What it measures |
+|---|---|
+| JSON validity rate | % of outputs that are valid, parseable JSON with all 8 required fields |
+| Intent accuracy | % where model correctly classifies what the customer wants (e.g. `get_refund`) |
+| Gatekeeper accuracy | % where model makes the correct policy decision (APPROVE / REQUEST_EVIDENCE / ESCALATE) |
+| Slot F1 | How accurately `order_id` and `invoice_id` are extracted (micro-averaged F1) |
+| Hallucination rate | % of rows where the model invents an order/invoice ID not present in the input |
+
+**How to run:**
+
+```bash
+# On RunPod — BEFORE fine-tuning (baseline):
+python scripts/03_baseline_eval.py --model Qwen/Qwen2.5-7B-Instruct --load-in-4bit
+python scripts/03_baseline_eval.py --model meta-llama/Llama-3.2-3B-Instruct --load-in-4bit
+
+# On RunPod — AFTER fine-tuning:
+python scripts/03_baseline_eval.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --adapter-path output/qwen-2.5-7b-ecommerce-gk \
+    --load-in-4bit
+
+python scripts/03_baseline_eval.py \
+    --model meta-llama/Llama-3.2-3B-Instruct \
+    --adapter-path output/llama-3.2-3b-ecommerce-gk \
+    --load-in-4bit
+```
+
+**Output files (4 total):**
+- `results/baseline_results_qwen.json` — Qwen base model, 150 rows + summary
+- `results/baseline_results_llama.json` — Llama base model, 150 rows + summary
+- `results/finetuned_results_qwen.json` — Qwen fine-tuned, 150 rows + summary
+- `results/finetuned_results_llama.json` — Llama fine-tuned, 150 rows + summary
+
+Each file contains full per-row data (ground truth, prediction, all metric flags) plus an aggregated `summary` block with the 5 metric rates.
+
+**Key decisions:**
+- `do_sample=False` (greedy decoding) — reproducible eval with no randomness
+- Same `LABELING_SYSTEM_PROMPT` used in Week 1 generation — consistent zero-shot setup
+- `--adapter-path` optional: omit for baseline, add for fine-tuned eval (same script, same output schema)
+- 4-bit quantization via BitsAndBytes — fits 7B model on A10G 24GB VRAM
+
+---
+
+### Step 2 — Comparison Report
+
+#### `scripts/04_compare_results.py`
+
+**What this script does (plain English):**
+
+Once all 4 eval runs are complete, this script loads the results and produces the central portfolio artifact: a side-by-side table showing exactly how much each metric improved after fine-tuning.
+
+**Runs locally on Mac** — no GPU required, no ML dependencies (pure Python stdlib).
+
+**How to run:**
+
+```bash
+# Locally, after copying results/ files from RunPod:
+python scripts/04_compare_results.py
+```
+
+**Output files:**
+- `results/comparison_report.json` — machine-readable delta data for the Week 4 dashboard
+- `results/comparison_report.md` — human-readable Markdown table for the portfolio README
+
+**Example output:**
+
+| Metric | Baseline | Fine-tuned | Delta |
+|---|---|---|---|
+| JSON validity | 70.0% | 100.0% | **+30.0%** |
+| Intent accuracy | 76.0% | 97.3% | **+21.3%** |
+| Gatekeeper acc. | 74.0% | 97.3% | **+23.3%** |
+| Slot F1 | 0.700 | 0.960 | **+0.260** |
+| Hallucination rt. | 12.0% | 0.7% | **−11.3%** |
+
+*(Numbers above are PRD targets — actual results may vary)*
+
+---
+
+### Script Numbering (Week 2 onwards)
+
+| Script | Purpose |
+|---|---|
+| `scripts/03_baseline_eval.py` | Eval any model on test.jsonl (baseline + fine-tuned) |
+| `scripts/04_compare_results.py` | Generate before/after comparison report |
+| `scripts/05_train_qwen.py` | Fine-tune Qwen-2.5-7B via Unsloth (Track A) |
+| `scripts/06_train_llama.py` | Fine-tune Llama-3.2-3B via Unsloth (Track B) |
+| `scripts/07_evaluate_models.py` | Week 3: full 5-model benchmark + LLM judge |
+
+*Weeks 3 and 4 will be documented here as each is completed.*
