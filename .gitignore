@@ -59,3 +59,9 @@ data/*.parquet
 
 # Intermediate checkpoint files (never commit)
 *_checkpoint.jsonl
+
+# Internal tooling / session artifacts
+.superpowers/
+.playwright-mcp/
+docs/
+.claude/

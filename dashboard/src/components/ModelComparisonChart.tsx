@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -24,6 +25,9 @@ const METRIC_COLORS: Record<string, string> = {
 type Props = { summaries: ModelSummary[] };
 
 export default function ModelComparisonChart({ summaries }: Props) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const data = summaries.map((s) => ({
     name: MODEL_LABELS[s.slug] ?? s.slug,
     "JSON validity": +(s.json_validity_mean * 100).toFixed(1),
@@ -42,6 +46,8 @@ export default function ModelComparisonChart({ summaries }: Props) {
     ],
   }));
 
+  if (!mounted) return <div style={{ height: 620 }} />;
+
   return (
     <div className="space-y-10">
       <div>
@@ -59,7 +65,7 @@ export default function ModelComparisonChart({ summaries }: Props) {
             />
             <Legend wrapperStyle={{ color: "#9ca3af" }} />
             {Object.entries(METRIC_COLORS).map(([key, color]) => (
-              <Bar key={key} dataKey={
+              <Bar key={key} isAnimationActive={false} dataKey={
                 key === "json_validity" ? "JSON validity" :
                 key === "intent_accuracy" ? "Intent acc." :
                 key === "gatekeeper_accuracy" ? "GK acc." :
@@ -83,7 +89,7 @@ export default function ModelComparisonChart({ summaries }: Props) {
               contentStyle={{ background: "#1f2937", border: "1px solid #374151" }}
               labelStyle={{ color: "#f3f4f6" }}
             />
-            <Bar dataKey="Judge score" fill="#818cf8">
+            <Bar dataKey="Judge score" fill="#818cf8" isAnimationActive={false}>
               <ErrorBar dataKey="errorY" width={4} strokeWidth={2} stroke="#a5b4fc" />
             </Bar>
           </BarChart>
