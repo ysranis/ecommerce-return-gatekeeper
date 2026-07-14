@@ -339,4 +339,47 @@ python scripts/04_compare_results.py
 | `scripts/06_train_llama.py` | Fine-tune Llama-3.2-3B via Unsloth (Track B) |
 | `scripts/07_evaluate_models.py` | Week 3: full 5-model benchmark + LLM judge |
 
-*Weeks 3 and 4 will be documented here as each is completed.*
+*Week 4 will be documented here as it is completed.*
+
+---
+
+## Week 3 — Multi-Model Benchmark ✅ Complete
+
+**Status:** Complete. 5-model benchmark run locally. Results in `results/`.
+
+**Goal:** Evaluate all 5 model variants on 150 held-out test rows with automated metrics, LLM-as-a-Judge scoring, and bootstrap 95% confidence intervals — producing the full "before / after / teacher gap" story for the portfolio.
+
+**Runs on:** Local Mac — DeepSeek-V3 teacher eval via API (~150 calls), Claude Haiku judge via API (~750 calls). No GPU required.
+
+**How to run:**
+```bash
+python scripts/07_evaluate_models.py          # full run (~10 min)
+python scripts/07_evaluate_models.py --skip-teacher --skip-judge  # metrics only (instant)
+```
+
+### 5 Models Evaluated
+
+| Model Slug | Description |
+|---|---|
+| `base_qwen` | Qwen-2.5-7B untrained base |
+| `ft_qwen` | Qwen-2.5-7B fine-tuned (Track A, LoRA r=16) |
+| `base_llama` | Llama-3.2-3B untrained base |
+| `ft_llama` | Llama-3.2-3B fine-tuned (Track B, LoRA r=8) |
+| `teacher_deepseek` | DeepSeek-V3 — the knowledge distillation teacher |
+
+### LLM-as-a-Judge
+
+DeepSeek-V3 (`deepseek-chat`) scores each of 750 outputs (5 × 150) on a 1–5 rubric against the golden ground truth. Runs async with concurrency=10 via the existing `DeepSeekClient`. Checkpointed — safe to interrupt and resume. Cost: ~$0.11 for 750 calls.
+
+### Bootstrap Confidence Intervals
+
+1,000 resamples per metric per model. Confirms that all improvements are statistically real (non-overlapping CIs between base and fine-tuned models).
+
+### Output Files
+
+| File | Contents |
+|---|---|
+| `results/teacher_results_deepseek.json` | Teacher eval — 150 rows + summary |
+| `results/eval_results.json` | Unified 5-model × 150-row data + judge scores |
+| `results/eval_summary.json` | Aggregated metrics + bootstrap 95% CIs |
+| `results/cross_comparison_table.md` | Portfolio money table (Δ vs base, teacher gap) |
