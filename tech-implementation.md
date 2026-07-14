@@ -229,7 +229,9 @@ Full detailed spec: [`docs/superpowers/specs/2026-07-13-week1-dataset-engineerin
 
 ---
 
-## Week 2 — Baseline Evaluation + Fine-Tuning (In Progress)
+## Week 2 — Baseline Evaluation + Fine-Tuning ✅ Complete
+
+**Status:** Complete. All 4 eval runs finished on RunPod RTX 4090. Results downloaded to `results/`.
 
 **Goal:** Establish zero-shot baselines for both models, fine-tune them, then produce a clear "before vs. after" comparison report.
 

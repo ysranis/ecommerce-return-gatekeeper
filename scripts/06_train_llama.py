@@ -181,18 +181,17 @@ def main(args: argparse.Namespace) -> None:
     )
 
     # --- SFTTrainer ---
-    from trl import SFTTrainer
-    from transformers import TrainingArguments
+    from trl import SFTTrainer, SFTConfig
 
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
-        dataset_text_field="text",
-        max_seq_length=args.max_seq_length,
-        args=TrainingArguments(
+        args=SFTConfig(
             output_dir=str(output_dir),
+            dataset_text_field="text",
+            max_seq_length=args.max_seq_length,
             num_train_epochs=args.epochs,
             per_device_train_batch_size=8,   # larger batch — smaller model
             per_device_eval_batch_size=8,
