@@ -70,8 +70,6 @@ METRIC_LABELS = {
     "hallucination_rate": "Hallucination rt.",
 }
 
-LOWER_IS_BETTER = {"hallucination_rate"}
-
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -168,8 +166,6 @@ async def _run_teacher_eval(
     done = {r["seed_id"]: r for r in load_checkpoint(checkpoint_path)}
     print(f"[teacher] Loaded {len(done)} cached rows.")
 
-    semaphore = asyncio.Semaphore(concurrency)
-
     async def _eval_one(row: dict) -> dict:
         seed_id = row["seed_id"]
         if seed_id in done:
@@ -222,11 +218,7 @@ async def _run_teacher_eval(
 
     remaining_rows = [row for row in test_rows if row["seed_id"] not in done]
 
-    async def bounded(row):
-        async with semaphore:
-            return await _eval_one(row)
-
-    new_results = await asyncio.gather(*[bounded(row) for row in remaining_rows])
+    new_results = await asyncio.gather(*[_eval_one(row) for row in remaining_rows])
 
     # Merge: preserve order from test_rows
     all_rows = []
