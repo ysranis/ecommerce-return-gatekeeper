@@ -349,7 +349,7 @@ python scripts/04_compare_results.py
 
 **Goal:** Evaluate all 5 model variants on 150 held-out test rows with automated metrics, LLM-as-a-Judge scoring, and bootstrap 95% confidence intervals — producing the full "before / after / teacher gap" story for the portfolio.
 
-**Runs on:** Local Mac — DeepSeek-V3 teacher eval via API (~150 calls), Claude Haiku judge via API (~750 calls). No GPU required.
+**Runs on:** Local Mac — DeepSeek-V3 teacher eval via API (~150 calls), DeepSeek-V3 judge via API (~750 calls). No GPU required.
 
 **How to run:**
 ```bash
