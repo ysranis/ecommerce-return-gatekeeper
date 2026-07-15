@@ -44,6 +44,8 @@ DeepSeek-V3 (teacher)
 | **FT Llama-3.2-3B (B)** | **74.0%** | **58.0%** | **91.6%** | **3.69 / 5** |
 | DeepSeek-V3 (teacher) | 81.3% | 73.3% | 85.8% | 4.07 / 5 |
 
+**Complete fine tunning analysis:** [Wandb Report]([https://api.wandb.ai/links/ysranis-/sqy5spnp])
+
 Fine-tuning lifted Qwen intent accuracy by **+24.7pp** and Llama by **+50pp**, at 3–83× lower cost than frontier API models.
 
 > **Run 2 note:** Qwen was retrained with a targeted REQUEST_EVIDENCE supplement (train_v2, 1,411 rows, r=32) which improved gatekeeper accuracy from 62% → 64% and intent accuracy from 74% → 86%. Llama best result is kept from Run 1 — Run 2/3 experiments showed diminishing returns for the 3B model at higher RE ratios.
