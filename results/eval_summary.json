@@ -35,7 +35,7 @@
       "judge_score": null
     },
     "ft_qwen": {
-      "label": "Qwen-2.5-7B fine-tuned (Track A)",
+      "label": "Qwen-2.5-7B fine-tuned (Track A, Run 2)",
       "metrics": {
         "json_validity_rate": {
           "mean": 1.0,
@@ -97,7 +97,7 @@
       "judge_score": null
     },
     "ft_llama": {
-      "label": "Llama-3.2-3B fine-tuned (Track B)",
+      "label": "Llama-3.2-3B fine-tuned (Track B, Run 1)",
       "metrics": {
         "json_validity_rate": {
           "mean": 0.98,
