@@ -16,9 +16,9 @@ CREATE TABLE IF NOT EXISTS model_summaries (
   hallucination_rate_mean      REAL NOT NULL,
   hallucination_rate_ci_lower  REAL NOT NULL,
   hallucination_rate_ci_upper  REAL NOT NULL,
-  judge_score_mean             REAL NOT NULL,
-  judge_score_ci_lower         REAL NOT NULL,
-  judge_score_ci_upper         REAL NOT NULL
+  judge_score_mean             REAL,
+  judge_score_ci_lower         REAL,
+  judge_score_ci_upper         REAL
 );
 
 CREATE TABLE IF NOT EXISTS eval_rows (
