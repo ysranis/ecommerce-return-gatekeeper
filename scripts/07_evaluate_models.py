@@ -174,7 +174,7 @@ async def _run_teacher_eval(
         raw = await client.generate(
             user_prompt=row["synthetic_message"],
             system_prompt=LABELING_SYSTEM_PROMPT,
-            max_tokens=512,
+            max_tokens=1024,
             temperature=0.0,
         )
         raw_stripped = _strip_code_fences(raw)
@@ -354,12 +354,13 @@ def write_eval_results(all_model_data: dict, judge_scores: dict, output_path: Pa
 def write_eval_summary(
     summary_by_model: dict,
     n_resamples: int,
+    n_test_rows: int,
     output_path: Path,
 ) -> None:
     """Write eval_summary.json with bootstrap CIs."""
     output = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "n_test_rows": 150,
+        "n_test_rows": n_test_rows,
         "n_resamples": n_resamples,
         "models": summary_by_model,
     }
@@ -560,10 +561,15 @@ def main(args: argparse.Namespace) -> None:
         )
     print("[bootstrap] Done.")
 
+    # Derive test row count from first model with rows (handles 150 or 350)
+    n_test_rows = next(
+        len(data["rows"]) for data in all_model_data.values() if data["rows"]
+    )
+
     # ── Step 5: Write output files ───────────────────────────────────────────
     print("\n[output] Writing report files...")
     write_eval_results(all_model_data, judge_scores, output_dir / "eval_results.json")
-    write_eval_summary(summary_by_model, args.n_resamples, output_dir / "eval_summary.json")
+    write_eval_summary(summary_by_model, args.n_resamples, n_test_rows, output_dir / "eval_summary.json")
     write_cross_comparison_table(summary_by_model, output_dir / "cross_comparison_table.md")
 
     # ── Print console summary ─────────────────────────────────────────────────

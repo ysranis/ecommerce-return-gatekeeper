@@ -414,8 +414,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max-new-tokens",
         type=int,
-        default=512,
-        help="Max tokens to generate per row (default: 512)",
+        default=1024,
+        help="Max tokens to generate per row (default: 1024)",
     )
     parser.add_argument(
         "--load-in-4bit",
