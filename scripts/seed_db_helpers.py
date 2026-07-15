@@ -9,7 +9,7 @@ def parse_model_summaries(data: dict) -> list[dict]:
     rows = []
     for slug, model in data["models"].items():
         m = model["metrics"]
-        j = model["judge_score"]
+        j = model["judge_score"] or {}
         rows.append({
             "slug": slug,
             "label": model["label"],
@@ -28,9 +28,9 @@ def parse_model_summaries(data: dict) -> list[dict]:
             "hallucination_rate_mean": m["hallucination_rate"]["mean"],
             "hallucination_rate_ci_lower": m["hallucination_rate"]["ci_lower"],
             "hallucination_rate_ci_upper": m["hallucination_rate"]["ci_upper"],
-            "judge_score_mean": j["mean"],
-            "judge_score_ci_lower": j["ci_lower"],
-            "judge_score_ci_upper": j["ci_upper"],
+            "judge_score_mean": j.get("mean"),
+            "judge_score_ci_lower": j.get("ci_lower"),
+            "judge_score_ci_upper": j.get("ci_upper"),
         })
     return rows
 

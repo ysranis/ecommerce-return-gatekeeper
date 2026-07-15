@@ -1,19 +1,19 @@
 # E-commerce Return Gatekeeper — Before vs. After Fine-Tuning
 
-_Generated: 2026-07-14T14:05:39.995527+00:00_
+_Generated: 2026-07-15T12:57:48.679465+00:00_
 
 ## Qwen-2.5-7B (Track A — Accuracy-Optimized)
 
 **Base model:** `Qwen/Qwen2.5-7B-Instruct`
-**Adapter:** `/root/output/qwen-2.5-7b-ecommerce-gk`
+**Adapter:** `output/qwen-2.5-7b-ecommerce-gk-v2`
 
 | Metric | Baseline | Fine-tuned | Delta |
 |---|---|---|---|
-| JSON validity | 99.3% | 96.7% | **-2.7%** |
+| JSON validity | 99.3% | 100.0% | **+0.7%** |
 | Intent accuracy | 61.3% | 86.0% | **+24.7%** |
-| Gatekeeper acc. | 33.3% | 62.0% | **+28.7%** |
-| Slot F1 | 0.918 | 0.920 | **+0.002** |
-| Hallucination rt. | 2.0% | 2.7% | **+0.7%** |
+| Gatekeeper acc. | 33.3% | 64.0% | **+30.7%** |
+| Slot F1 | 0.918 | 0.958 | **+0.040** |
+| Hallucination rt. | 2.0% | 0.7% | **-1.3%** |
 
 ## Llama-3.2-3B (Track B — Speed-Optimized)
 
@@ -30,5 +30,5 @@ _Generated: 2026-07-14T14:05:39.995527+00:00_
 
 ## Key Takeaways
 
-- **Qwen-2.5-7B (Track A — Accuracy-Optimized)**: 3/5 metrics improved after fine-tuning
+- **Qwen-2.5-7B (Track A — Accuracy-Optimized)**: 5/5 metrics improved after fine-tuning
 - **Llama-3.2-3B (Track B — Speed-Optimized)**: 5/5 metrics improved after fine-tuning

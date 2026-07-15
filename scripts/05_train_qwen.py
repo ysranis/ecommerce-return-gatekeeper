@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
 """
-Script 05 — Fine-Tuning: Track A (Qwen-2.5-7B-Instruct)
+Script 05 — Fine-Tuning: Track A (Qwen-2.5-7B-Instruct)  [Run 2]
 
 QLoRA fine-tuning of Qwen-2.5-7B-Instruct using Unsloth + SFTTrainer.
-Trains on data/train.jsonl for 3 epochs, evaluates on data/val.jsonl,
-and saves the merged adapter weights to output/qwen-2.5-7b-ecommerce-gk/.
+
+Run 2 changes vs Run 1:
+  - Dataset : data/train_v2.jsonl (1,411 rows, 25.2% REQUEST_EVIDENCE vs 12%)
+  - LoRA    : r=32, lora_alpha=64  (was r=16, alpha=32 — more capacity needed)
+  - Epochs  : 4  (was 3)
+  - Output  : output/qwen-2.5-7b-ecommerce-gk-v2
+  - W&B run : qwen-7b-run-002
+
+Trains on data/train_v2.jsonl for 4 epochs, evaluates on data/val.jsonl,
+and saves the adapter weights to output/qwen-2.5-7b-ecommerce-gk-v2/.
 
 Tracked in Weights & Biases (project=ecommerce-gatekeeper, group=qwen-7b).
 
 After training, run script 03 with --adapter-path to evaluate:
     python scripts/03_baseline_eval.py \\
         --model Qwen/Qwen2.5-7B-Instruct \\
-        --adapter-path output/qwen-2.5-7b-ecommerce-gk \\
+        --adapter-path output/qwen-2.5-7b-ecommerce-gk-v2 \\
         --load-in-4bit
 
-NOTE: Run this on RunPod A10G (24GB VRAM). ~1.5 hrs, ~$0.70.
+NOTE: Run this on RunPod A10G (24GB VRAM). ~2 hrs, ~$0.90 (extra epoch vs Run 1).
 
 Usage:
     python scripts/05_train_qwen.py
@@ -92,11 +100,11 @@ def main(args: argparse.Namespace) -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    train_path = data_dir / "train.jsonl"
+    train_path = data_dir / "train_v2.jsonl"
     val_path = data_dir / "val.jsonl"
 
     if not train_path.exists():
-        sys.exit(f"ERROR: {train_path} not found. Run scripts 01 and 02 first.")
+        sys.exit(f"ERROR: {train_path} not found. Run script 09 to generate train_v2.jsonl.")
     if not val_path.exists():
         sys.exit(f"ERROR: {val_path} not found. Run scripts 01 and 02 first.")
 
@@ -104,8 +112,10 @@ def main(args: argparse.Namespace) -> None:
     print(f"FINE-TUNING: Track A — Qwen-2.5-7B-Instruct")
     print(f"{'='*56}")
     print(f"Model      : {args.model}")
+    print(f"Dataset    : {train_path}")
     print(f"Output dir : {output_dir}")
     print(f"Epochs     : {args.epochs}")
+    print(f"LoRA rank  : 32  (Run 2 — was 16 in Run 1)")
     print(f"{'='*56}\n")
 
     # --- Unsloth model load ---
@@ -120,11 +130,14 @@ def main(args: argparse.Namespace) -> None:
     )
 
     # --- Attach LoRA adapters ---
-    print("Attaching LoRA adapters (r=16, Wq + Wv)…")
+    # Run 2: r=32, alpha=64 (doubled from Run 1 r=16, alpha=32)
+    # Rationale: Qwen scored only 23.8% per-class accuracy on REQUEST_EVIDENCE in Run 1.
+    # More adapter capacity is needed to learn the sharper class boundaries in train_v2.
+    print("Attaching LoRA adapters (r=32, Wq + Wv)…")
     model = FastLanguageModel.get_peft_model(
         model,
-        r=16,
-        lora_alpha=32,
+        r=32,
+        lora_alpha=64,
         lora_dropout=0.05,
         target_modules=["q_proj", "v_proj"],
         bias="none",
@@ -151,12 +164,14 @@ def main(args: argparse.Namespace) -> None:
     import wandb
     wandb.init(
         project="ecommerce-gatekeeper",
-        name="qwen-7b-run-001",
+        name="qwen-7b-run-002",
         group="qwen-7b",
         config={
             "model": args.model,
-            "lora_r": 16,
-            "lora_alpha": 32,
+            "run": 2,
+            "train_dataset": str(train_path),
+            "lora_r": 32,
+            "lora_alpha": 64,
             "epochs": args.epochs,
             "learning_rate": 2e-4,
             "batch_size": 4,
@@ -192,7 +207,7 @@ def main(args: argparse.Namespace) -> None:
             greater_is_better=False,
             logging_steps=10,
             report_to="wandb" if os.environ.get("WANDB_API_KEY") else "none",
-            run_name="qwen-7b-run-001",
+            run_name="qwen-7b-run-002",
         ),
     )
 
@@ -207,7 +222,7 @@ def main(args: argparse.Namespace) -> None:
     wandb.finish()
 
     print(f"\n{'='*56}")
-    print(f"Training complete — Track A (Qwen-2.5-7B)")
+    print(f"Training complete — Track A (Qwen-2.5-7B) Run 2")
     print(f"  Adapter saved : {output_dir}")
     print(f"  Next step     : run script 03 with --adapter-path to evaluate")
     print(f"{'='*56}")
@@ -215,7 +230,8 @@ def main(args: argparse.Namespace) -> None:
         f"\n  python scripts/03_baseline_eval.py \\\n"
         f"      --model {args.model} \\\n"
         f"      --adapter-path {output_dir} \\\n"
-        f"      --load-in-4bit"
+        f"      --load-in-4bit\n"
+        f"\n  Then run script 04 to compare Run 1 vs Run 2."
     )
 
 
@@ -230,19 +246,19 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--output-dir",
-        default="output/qwen-2.5-7b-ecommerce-gk",
-        help="Directory to save adapter weights (default: output/qwen-2.5-7b-ecommerce-gk)",
+        default="output/qwen-2.5-7b-ecommerce-gk-v2",
+        help="Directory to save adapter weights (default: output/qwen-2.5-7b-ecommerce-gk-v2)",
     )
     parser.add_argument(
         "--data-dir",
         default="data",
-        help="Directory containing train.jsonl and val.jsonl (default: data/)",
+        help="Directory containing train_v2.jsonl and val.jsonl (default: data/)",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=3,
-        help="Number of training epochs (default: 3)",
+        default=4,
+        help="Number of training epochs (default: 4 — increased from 3 in Run 1)",
     )
     parser.add_argument(
         "--max-seq-length",

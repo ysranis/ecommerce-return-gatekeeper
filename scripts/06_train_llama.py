@@ -1,23 +1,37 @@
 #!/usr/bin/env python3
 """
-Script 06 — Fine-Tuning: Track B (Llama-3.2-3B-Instruct)
+Script 06 — Fine-Tuning: Track B (Llama-3.2-3B-Instruct)  [Run 2]
 
 QLoRA fine-tuning of Llama-3.2-3B-Instruct using Unsloth + SFTTrainer.
 Speed-optimized: smaller LoRA rank (r=8), shorter sequence length (1024),
 larger batch size (8) compared to Track A.
 
-Trains on data/train.jsonl for 3 epochs, evaluates on data/val.jsonl,
-and saves the merged adapter weights to output/llama-3.2-3b-ecommerce-gk/.
+Run 2 changes vs Run 1:
+  - Dataset : data/train_v2.jsonl (1,411 rows, 25.2% REQUEST_EVIDENCE vs 12%)
+  - Output  : output/llama-3.2-3b-ecommerce-gk-v2
+  - W&B run : llama-3b-run-002
+  - LoRA/epochs unchanged (Llama already at 61.9% REQUEST_EVIDENCE; data fix sufficient)
+
+Run 3 correction (Llama only) — fixes overcorrection from Run 2:
+  - Run 2 added 211 RE supplement rows (25.2% RE) → model over-predicted RE, collapsing
+    ESCALATE accuracy from 54.5% to 37.9% (shifted confusion class, not fixed it)
+  - Dataset : data/train_v3.jsonl (1,320 rows, 20.0% RE — trimmed supplement to 120 rows)
+  - LoRA    : r=16, lora_alpha=32  (was r=8, alpha=16 — more capacity to hold the distinction)
+  - Output  : output/llama-3.2-3b-ecommerce-gk-v3
+  - W&B run : llama-3b-run-003
+
+Trains on data/train_v3.jsonl for 3 epochs, evaluates on data/val.jsonl,
+and saves the adapter weights to output/llama-3.2-3b-ecommerce-gk-v3/.
 
 Tracked in Weights & Biases (project=ecommerce-gatekeeper, group=llama-3b).
 
 After training, run script 03 with --adapter-path to evaluate:
     python scripts/03_baseline_eval.py \\
         --model meta-llama/Llama-3.2-3B-Instruct \\
-        --adapter-path output/llama-3.2-3b-ecommerce-gk \\
+        --adapter-path output/llama-3.2-3b-ecommerce-gk-v2 \\
         --load-in-4bit
 
-NOTE: Run this on RunPod A10G (24GB VRAM). ~45 min, ~$0.35.
+NOTE: Run this on RunPod A10G (24GB VRAM). ~50 min, ~$0.37.
       Requires HF_TOKEN in .env (Llama is a gated model).
 
 Usage:
@@ -105,11 +119,11 @@ def main(args: argparse.Namespace) -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    train_path = data_dir / "train.jsonl"
+    train_path = data_dir / "train_v3.jsonl"
     val_path = data_dir / "val.jsonl"
 
     if not train_path.exists():
-        sys.exit(f"ERROR: {train_path} not found. Run scripts 01 and 02 first.")
+        sys.exit(f"ERROR: {train_path} not found. Run script 09 then create train_v3.jsonl.")
     if not val_path.exists():
         sys.exit(f"ERROR: {val_path} not found. Run scripts 01 and 02 first.")
 
@@ -117,8 +131,10 @@ def main(args: argparse.Namespace) -> None:
     print(f"FINE-TUNING: Track B — Llama-3.2-3B-Instruct")
     print(f"{'='*56}")
     print(f"Model      : {args.model}")
+    print(f"Dataset    : {train_path}")
     print(f"Output dir : {output_dir}")
     print(f"Epochs     : {args.epochs}")
+    print(f"LoRA rank  : 16  (Run 3 correction — was r=8 in Run 1/2)")
     print(f"{'='*56}\n")
 
     # --- Unsloth model load ---
@@ -134,12 +150,14 @@ def main(args: argparse.Namespace) -> None:
     )
 
     # --- Attach LoRA adapters ---
-    # Smaller rank (r=8) vs Track A (r=16) — speed/cost optimized
-    print("Attaching LoRA adapters (r=8, Wq + Wv)…")
+    # Run 3 correction: r=16, alpha=32 (doubled from r=8, alpha=16 in Run 1/2)
+    # Run 2 showed Llama over-predicted REQUEST_EVIDENCE with r=8 — more capacity needed
+    # to hold ESCALATE_TO_HUMAN vs REQUEST_EVIDENCE boundary with more RE training data.
+    print("Attaching LoRA adapters (r=16, Wq + Wv)…")
     model = FastLanguageModel.get_peft_model(
         model,
-        r=8,
-        lora_alpha=16,
+        r=16,
+        lora_alpha=32,
         lora_dropout=0.05,
         target_modules=["q_proj", "v_proj"],
         bias="none",
@@ -166,12 +184,14 @@ def main(args: argparse.Namespace) -> None:
     import wandb
     wandb.init(
         project="ecommerce-gatekeeper",
-        name="llama-3b-run-001",
+        name="llama-3b-run-003",
         group="llama-3b",
         config={
             "model": args.model,
-            "lora_r": 8,
-            "lora_alpha": 16,
+            "run": 3,
+            "train_dataset": str(train_path),
+            "lora_r": 16,
+            "lora_alpha": 32,
             "epochs": args.epochs,
             "learning_rate": 2e-4,
             "batch_size": 8,
@@ -207,7 +227,7 @@ def main(args: argparse.Namespace) -> None:
             greater_is_better=False,
             logging_steps=10,
             report_to="wandb" if os.environ.get("WANDB_API_KEY") else "none",
-            run_name="llama-3b-run-001",
+            run_name="llama-3b-run-003",
         ),
     )
 
@@ -222,7 +242,7 @@ def main(args: argparse.Namespace) -> None:
     wandb.finish()
 
     print(f"\n{'='*56}")
-    print(f"Training complete — Track B (Llama-3.2-3B)")
+    print(f"Training complete — Track B (Llama-3.2-3B) Run 2")
     print(f"  Adapter saved : {output_dir}")
     print(f"  Next step     : run script 03 with --adapter-path to evaluate")
     print(f"{'='*56}")
@@ -230,7 +250,8 @@ def main(args: argparse.Namespace) -> None:
         f"\n  python scripts/03_baseline_eval.py \\\n"
         f"      --model {args.model} \\\n"
         f"      --adapter-path {output_dir} \\\n"
-        f"      --load-in-4bit"
+        f"      --load-in-4bit\n"
+        f"\n  Then run script 04 to compare Run 1 vs Run 2."
     )
 
 
@@ -245,13 +266,13 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--output-dir",
-        default="output/llama-3.2-3b-ecommerce-gk",
-        help="Directory to save adapter weights (default: output/llama-3.2-3b-ecommerce-gk)",
+        default="output/llama-3.2-3b-ecommerce-gk-v3",
+        help="Directory to save adapter weights (default: output/llama-3.2-3b-ecommerce-gk-v3)",
     )
     parser.add_argument(
         "--data-dir",
         default="data",
-        help="Directory containing train.jsonl and val.jsonl (default: data/)",
+        help="Directory containing train_v2.jsonl and val.jsonl (default: data/)",
     )
     parser.add_argument(
         "--epochs",
