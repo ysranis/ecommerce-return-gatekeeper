@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-07-14T14:05:39.995527+00:00",
+  "generated_at": "2026-07-15T12:57:48.679465+00:00",
   "models": {
     "qwen": {
       "label": "Qwen-2.5-7B (Track A \u2014 Accuracy-Optimized)",
       "baseline_model": "Qwen/Qwen2.5-7B-Instruct",
-      "finetuned_adapter": "/root/output/qwen-2.5-7b-ecommerce-gk",
-      "baseline_file": "/workspace/results/baseline_results_qwen.json",
-      "finetuned_file": "/workspace/results/finetuned_results_qwen.json",
+      "finetuned_adapter": "output/qwen-2.5-7b-ecommerce-gk-v2",
+      "baseline_file": "results/baseline_results_qwen.json",
+      "finetuned_file": "results/finetuned_results_qwen.json",
       "metrics": {
         "json_validity_rate": {
           "baseline": 0.9933,
-          "finetuned": 0.9667,
-          "delta": -0.0266,
-          "improved": false
+          "finetuned": 1.0,
+          "delta": 0.0067,
+          "improved": true
         },
         "intent_accuracy": {
           "baseline": 0.6133,
@@ -22,21 +22,21 @@
         },
         "gatekeeper_accuracy": {
           "baseline": 0.3333,
-          "finetuned": 0.62,
-          "delta": 0.2867,
+          "finetuned": 0.64,
+          "delta": 0.3067,
           "improved": true
         },
         "slot_f1": {
           "baseline": 0.9178,
-          "finetuned": 0.92,
-          "delta": 0.0022,
+          "finetuned": 0.9578,
+          "delta": 0.04,
           "improved": true
         },
         "hallucination_rate": {
           "baseline": 0.02,
-          "finetuned": 0.0267,
-          "delta": 0.0067,
-          "improved": false
+          "finetuned": 0.0067,
+          "delta": -0.0133,
+          "improved": true
         }
       }
     },
@@ -44,8 +44,8 @@
       "label": "Llama-3.2-3B (Track B \u2014 Speed-Optimized)",
       "baseline_model": "meta-llama/Llama-3.2-3B-Instruct",
       "finetuned_adapter": "/root/output/llama-3.2-3b-ecommerce-gk",
-      "baseline_file": "/workspace/results/baseline_results_llama.json",
-      "finetuned_file": "/workspace/results/finetuned_results_llama.json",
+      "baseline_file": "results/baseline_results_llama.json",
+      "finetuned_file": "results/finetuned_results_llama.json",
       "metrics": {
         "json_validity_rate": {
           "baseline": 0.9467,

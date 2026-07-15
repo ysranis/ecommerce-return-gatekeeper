@@ -21,9 +21,9 @@ A customer submits a return/refund dispute. The system:
 ```
 DeepSeek-V3 (teacher)
     │
-    ▼ knowledge distillation (2000 synthetic disputes)
-    ├─ Qwen-2.5-7B  ──── QLoRA r=16 ──── Track A (accuracy)
-    └─ Llama-3.2-3B ──── QLoRA r=8  ──── Track B (speed/cost)
+    ▼ knowledge distillation (2000 synthetic disputes + targeted RE supplement)
+    ├─ Qwen-2.5-7B  ──── QLoRA r=32 (Run 2) ──── Track A (accuracy)
+    └─ Llama-3.2-3B ──── QLoRA r=16 (Run 3) ──── Track B (speed/cost)
           │
           ▼
     Dynamic Triage Router ──── rule-based intent + emotion detection
@@ -46,6 +46,19 @@ DeepSeek-V3 (teacher)
 
 Fine-tuning lifted Qwen intent accuracy by **+24.7pp** and Llama by **+50pp**, at 3–83× lower cost than frontier API models.
 
+> **Run 2 note:** Qwen was retrained with a targeted REQUEST_EVIDENCE supplement (train_v2, 1,411 rows, r=32) which improved gatekeeper accuracy from 62% → 64% and intent accuracy from 74% → 86%. Llama best result is kept from Run 1 — Run 2/3 experiments showed diminishing returns for the 3B model at higher RE ratios.
+
+---
+
+## Model adapters (Hugging Face Hub)
+
+| Model | Repo | Run |
+|---|---|---|
+| Qwen-2.5-7B fine-tuned | [yasiranis/qwen-2.5-7b-ecommerce-gk-v2](https://huggingface.co/yasiranis/qwen-2.5-7b-ecommerce-gk-v2) | Run 2 |
+| Llama-3.2-3B fine-tuned | [yasiranis/llama-3.2-3b-ecommerce-gk-v3](https://huggingface.co/yasiranis/llama-3.2-3b-ecommerce-gk-v3) | Run 3 |
+
+LoRA adapters only — load on top of the respective base models via `peft`.
+
 ---
 
 ## Dashboard pages
@@ -67,10 +80,11 @@ scripts/
   02_label_dataset.py      # Golden labeling + train/val/test split
   03_baseline_eval.py      # Eval any model on test.jsonl (base or fine-tuned)
   04_compare_results.py    # Before/after comparison report (JSON + MD)
-  05_train_qwen.py         # Qwen-2.5-7B QLoRA fine-tuning via Unsloth
-  06_train_llama.py        # Llama-3.2-3B QLoRA fine-tuning via Unsloth
+  05_train_qwen.py         # Qwen-2.5-7B QLoRA fine-tuning via Unsloth (Run 2: r=32)
+  06_train_llama.py        # Llama-3.2-3B QLoRA fine-tuning via Unsloth (Run 3: r=16)
   07_evaluate_models.py    # 5-model benchmark + LLM-as-Judge scoring
-  seed_db.py               # Seed Neon Postgres from results JSON
+  08_seed_db.py            # Seed Neon Postgres from results JSON
+  09_generate_request_evidence.py  # Targeted RE class supplement generation
 
 router/
   triage_router.py         # Rule-based Dynamic Triage Router
