@@ -44,7 +44,7 @@ DeepSeek-V3 (teacher)
 | **FT Llama-3.2-3B (B)** | **74.0%** | **58.0%** | **91.6%** | **3.69 / 5** |
 | DeepSeek-V3 (teacher) | 81.3% | 73.3% | 85.8% | 4.07 / 5 |
 
-**Complete fine tunning analysis:** [Wandb Report]([https://api.wandb.ai/links/ysranis-/sqy5spnp])
+**Complete fine tunning analysis:** [Click here for the analysis report](https://api.wandb.ai/links/ysranis-/sqy5spnp)
 
 Fine-tuning lifted Qwen intent accuracy by **+24.7pp** and Llama by **+50pp**, at 3–83× lower cost than frontier API models.
 
